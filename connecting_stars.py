@@ -45,6 +45,7 @@ def draw():
             owidth =1.5,
             ocolor = "black"
         )
+        number += 1
 
     for line in lines:
         screen.draw.line(line[0], line[1], (255,255,150))
@@ -84,4 +85,4 @@ def on_mouse_down(pos):
         createStars()
 
 createStars()
-pgzrun.go
+pgzrun.go()
