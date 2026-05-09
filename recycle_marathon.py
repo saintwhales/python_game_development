@@ -7,7 +7,7 @@ HEIGHT = 800
 
 CENTER_X = WIDTH / 2
 CENTER_Y = HEIGHT / 2
-center = (CENTER_X, CENTER_Y)
+CENTER = (CENTER_X, CENTER_Y)
 
 FINAL_LEVEL = 6
 START_SPEED = 10
@@ -69,7 +69,7 @@ def create_items(items_to_create):
 
 
 def layout_items(items_to_layout):
-    number_of_gaps = len(items_to_layout)
+    number_of_gaps = len(items_to_layout) + 1
     gap_size = WIDTH / number_of_gaps
     random.shuffle(items_to_layout)
     for index, item in enumerate(items_to_layout):
@@ -98,7 +98,7 @@ def on_mouse_down(pos):
     for item in items:
         if item.collidepoint(pos):
             if "paper" in item.image:
-                handle_game_over()
+                handle_game_complete()
             else:
                 handle_game_over()
 
@@ -106,7 +106,7 @@ def on_mouse_down(pos):
 def handle_game_complete():
     global current_level, items, animations, game_complete
     stop_animations(animations)
-    if current_levels == FINAL_LEVEL:
+    if current_level == FINAL_LEVEL:
         game_complete = True
     else:
         current_level += 1
@@ -116,12 +116,12 @@ def handle_game_complete():
 
 def stop_animations(animations_to_stop):
     for animation in animations_to_stop:
-        if animations.running:
+        if animation.running:
             animation.stop()
 
 
 def display_message(heading_text, sub_heading_text):
-    screen.draw.text(heading_text, font_size=60, center=CENTER, color="white")
+    screen.draw.text(heading_text, fontsize=60, center=CENTER, color="white")
     screen.draw.text(
         sub_heading_text, fontsize=60, center=(CENTER_X, CENTER_Y + 30), color="white"
     )
