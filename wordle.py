@@ -144,6 +144,103 @@ def draw():
                     screen.draw.text(
                         grid[r][c], center=rect.center, fontsize=35, color=WHITE
                     )
+        screen.draw.text("WORDLE", center=(WIDTH // 2, 30), fontsize=50, color=WHITE)
+
+        screen.draw.text(message, center=(WIDTH // 2, 460), fontsize=30, color=WHITE)
+
+        for rect, key in key_rects:
+            color = key_colors.get(key, GRAY)
+            screen.draw.filled_rect(rect, color)
+            screen.draw.text(key, center=rect.center, fontsize=18, color=WHITE)
+
+        if game_state == "gameover":
+            screen.draw.filled_rect(play_again_button, BUTTON)
+            screen.draw.text(
+                "PLAY AGAIN", center=play_again_button.center, fontsize=25, color=WHITE
+            )
+
+
+def on_mouse_down(pos):
+    global game_state
+    if game_state == "start":
+        if start_button.collidepoint(pos):
+            init_game()
+            game_state = "playing"
+
+    elif game_state in ["playing", "gameover"]:
+        for rect, key in key_rects:
+            if rect.collidepoint(pos):
+                handle_key(key)
+
+            if game_state == "gamover":
+                if play_again_button.collidepoint(pos):
+                    init_game()
+                    game_state = "playing"
+
+
+def handle_key(key):
+    global current_col, current_row
+    if game_state != "playing":
+        return
+
+    if key == "ENTER":
+        if current_col == COLS:
+            check_word()
+
+    elif key == "BACK":
+        if current_col > 0:
+            current_col -= 1
+            grid[current_row][current_col] = ""
+
+    else:
+        if current_col < COLS:
+            grid[current_row][current_col] = key
+            current_col += 1
+
+
+def update_key_color(letter, color):
+    current = key_colors.get(letter)
+    if current == GREEN:
+        return
+    if current == YELLOW and color == DARK_GRAY:
+        return
+
+    key_colors[letter] = color
+
+
+def check_word():
+    global current_row, current_col, game_state, message
+    guess = "".join(grid[current_row])
+    secret_list = list(secret_word)
+
+    for i in range(COLS):
+        if guess[i] == secret_word[i]:
+            colors[current_row][i] = GREEN
+            secret_list[i] = None
+            update_key_color(guess[i], GREEN)
+
+    for i in range(COLS):
+        if colors[current_row][i] != GREEN:
+            if guess[i] in secret_list:
+                colors[current_row][i] = YELLOW
+                secret_list[secret_list.index(guess[i])] = None
+                update_key_color(guess[i], YELLOW)
+
+            else:
+                colors[current_row][i] = DARK_GRAY
+                update_key_color(guess[i], DARK_GRAY)
+
+    if guess == secret_word:
+        message = "YOU WON!"
+        game_state = "gameover"
+        return
+
+    current_row += 1
+    current_col = 0
+
+    if current_row == ROWS:
+        message = f"Word: {secret_word}"
+        game_state = "gameover"
 
 
 pgzrun.go()
